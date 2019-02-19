@@ -26,6 +26,6 @@ spec:
     spec:
       containers:
       - name: hello-kubernetes
-        image: durgaprasad444/hello-world:{{ env "imageTag" }}
+        image: durgaprasad444/hello-world:14
         ports:
         - containerPort: 8080
