@@ -26,6 +26,6 @@ spec:
     spec:
       containers:
       - name: hello-kubernetes
-        image: durgaprasad444/hello-world:14
+        image: nginx
         ports:
         - containerPort: 8080
