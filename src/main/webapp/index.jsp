@@ -1,9 +1,9 @@
 <html>
 <head>
-<title>Hello DURGA!</title>
+<title>Hello HI!</title>
 </head>
 <body>
-	<h1>Hello DURGA!</h1>
+	<h1>Hello HI!</h1>
 	<p>
 		It is now
 		<%= new java.util.Date() %></p>
