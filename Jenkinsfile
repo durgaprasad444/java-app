@@ -19,7 +19,7 @@ volumes: [
     }
             stage("clone code") {
                 container('docker') {
-                    if (env.BRANCH_NAME == 'master') {
+                    if (${gitBranch} == 'master') {
                                                     echo 'I only execute on the master branch'
                                             }
                     // Let's clone the source
