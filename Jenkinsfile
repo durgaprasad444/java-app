@@ -17,10 +17,8 @@ volumes: [
             stage("clone code") {
                 container('docker') {
                     // Let's clone the source
-                    sh """
-                      
-                      git clone https://github.com/durgaprasad444/${APP_NAME}.git
-                      git branch | grep \* | cut -d ' ' -f2
+                    sh """                      
+                      git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
                       cp -r * /home/jenkins/workspace/kube
                     """
