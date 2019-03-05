@@ -20,7 +20,7 @@ volumes: [
                     sh """                      
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
-                      cp -r * /home/jenkins/workspace/kube
+                      cp -r * /home/jenkins/workspace/branching
                     """
                 }
             }
