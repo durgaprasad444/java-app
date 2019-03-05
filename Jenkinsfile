@@ -19,6 +19,10 @@ volumes: [
     }
             stage("clone code") {
                 container('docker') {
+                    when {
+        expression { GIT_BRANCH ==~ /(dev)/ }
+      }
+
                     
                     // Let's clone the source
                     sh """ 
