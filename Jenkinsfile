@@ -1,100 +1,79 @@
-pipeline {
-    agent any
-    
-    tools {
-        // Note: this should match with the tool name configured in your jenkins instance (JENKINS_URL/configureTools/)
-        maven "Maven 3.6.0"
-    }
-    environment {
-        // This can be nexus3 or nexus2
-        NEXUS_VERSION = "nexus3"
-        // This can be http or https
-        NEXUS_PROTOCOL = "http"
-        // Where your Nexus is running
-        NEXUS_URL = "192.168.50.118:8081"
-        // Repository where we will upload the artifact
-        NEXUS_REPOSITORY = "hello-world"
-        // Jenkins credential id to authenticate to Nexus OSS
-        NEXUS_CREDENTIAL_ID = "nexus-credentials"
-        registry = "durgaprasad444/hello-world"
+def label = "docker-slave-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'docker', image: 'durgaprasad444/jenmine:1.1', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', ttyEnabled: true, command: 'cat')
+],
+volumes: [
+  hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+]) {
+    node(label) {
+        def APP_NAME = "hello-world"
+        def tag = "dev"
+        environment {
+        registry = "durgaprasad444/hello-world-dev"
         registryCredential = 'dockerhub'
         dockerImage = ''
     }
-    stages {
-        stage("clone code") {
-            steps {
-                script {
+            stage("clone code") {
+                container('docker') {
                     // Let's clone the source
-                    git 'https://github.com/durgaprasad444/hello-world-war.git';
+                    sh """
+                      
+                      git clone https://github.com/durgaprasad444/${APP_NAME}.git
+                      git branch | grep \* | cut -d ' ' -f2
+                      cd ${APP_NAME}
+                      cp -r * /home/jenkins/workspace/kube
+                    """
                 }
             }
-        }
         stage("mvn build") {
-            steps {
-                script {
+            container('docker') {
                     // If you are using Windows then you should use "bat" step
                     // Since unit testing is out of the scope we skip them
                     sh "mvn package -DskipTests=true"
-                }
             }
         }
         stage('Building image') {
-          steps{
-            script {
-              dockerImage = docker.build registry + ":latest"
-            }
+            container('docker') {
+              withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                credentialsId: 'dockerhub',
+                usernameVariable: 'DOCKER_HUB_USER',
+                passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
+                sh """
+                  docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+                  docker build -t ${DOCKER_HUB_USER}/${APP_NAME}-${tag}:$BUILD_NUMBER .
+                  docker push ${DOCKER_HUB_USER}/${APP_NAME}-${tag}:$BUILD_NUMBER
+                  """
+                }
+            
           }
         }
-        stage('push Image') {
-          steps{
-             script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push()
-              }
-            }
-          }
-        }
+        
         stage("publish to nexus") {
-            steps {
-                script {
-                    // Read POM xml file using 'readMavenPom' step , this step 'readMavenPom' is included in: https://plugins.jenkins.io/pipeline-utility-steps
-                    pom = readMavenPom file: "pom.xml";
-                    // Find built artifact under target folder
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
-                    // Print some info from the artifact found
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
-                    // Extract the path from the File found
-                    artifactPath = filesByGlob[0].path;
-                    // Assign to a boolean response verifying If the artifact name exists
-                    artifactExists = fileExists artifactPath;
-                    if(artifactExists) {
-                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
-                        nexusArtifactUploader(
-                            nexusVersion: NEXUS_VERSION,
-                            protocol: NEXUS_PROTOCOL,
-                            nexusUrl: NEXUS_URL,
-                            groupId: pom.groupId,
-                            version: pom.version,
-                            repository: NEXUS_REPOSITORY,
-                            credentialsId: NEXUS_CREDENTIAL_ID,
-                            artifacts: [
-                                // Artifact generated such as .jar, .ear and .war files.
-                                [artifactId: pom.artifactId,
-                                classifier: '',
-                                file: artifactPath,
-                                type: pom.packaging],
-                                // Lets upload the pom.xml file for additional information for Transitive dependencies
-                                [artifactId: pom.artifactId,
-                                classifier: '',
-                                file: "pom.xml",
-                                type: "pom"]
-                            ]
-                        );
-                    } else {
-                        error "*** File: ${artifactPath}, could not be found";
-                    }
+            container('docker') {
+def pom = readMavenPom file: 'pom.xml'
+ nexusPublisher nexusInstanceId: 'localNexus', \
+  nexusRepositoryId: 'hello-world', \
+  packages: [[$class: 'MavenPackage', \
+  mavenAssetList: [[classifier: '', extension: '', \
+  filePath: "target/${pom.artifactId}-${pom.version}.${pom.packaging}"]], \
+  mavenCoordinate: [artifactId: "${pom.artifactId}", \
+  groupId: "${pom.groupId}", \
+  packaging: "${pom.packaging}", \
+  version: "${pom.version}"]]]
+}
+        }
+        stage("deploy on kubernetes") {
+            container('kubectl') {
+                sh "kubectl set image deployment/hello-kubernetes hello-kubernetes=durgaprasad444/${APP_NAME}-${tag}:$BUILD_NUMBER"
+            }
+        }
                 }
             }
-        }
-    }
-}
+        
+    
+    
+
+
+
+   
