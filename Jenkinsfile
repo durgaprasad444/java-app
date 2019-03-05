@@ -19,11 +19,10 @@ volumes: [
     }
             stage("clone code") {
                 container('docker') {
-                    if (${gitBranch} == 'master') {
-                                                    echo 'I only execute on the master branch'
-                                            }
+                    
                     // Let's clone the source
-                    sh """                      
+                    sh """ 
+                      echo "${gitBranch}"
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
                       cp -r * /home/jenkins/workspace/branching
