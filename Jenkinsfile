@@ -7,6 +7,9 @@ volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
     node(label) {
+        def myRepo = checkout scm
+        def gitCommit = myRepo.GIT_COMMIT
+        def gitBranch = myRepo.GIT_BRANCH
         def APP_NAME = "hello-world"
         def tag = "dev"
         environment {
@@ -16,6 +19,9 @@ volumes: [
     }
             stage("clone code") {
                 container('docker') {
+                    if (env.BRANCH_NAME == 'master') {
+                                                    echo 'I only execute on the master branch'
+                                            }
                     // Let's clone the source
                     sh """                      
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
