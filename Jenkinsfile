@@ -31,7 +31,7 @@ volumes: [
                       echo "${gitBranch}"
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
-                      cp -r * /home/jenkins/workspace/branching2
+                      cp -r * /home/jenkins/workspace/branching
                     """
                 }
             }
