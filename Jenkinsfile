@@ -19,9 +19,11 @@ volumes: [
     }
             stage("clone code") {
                 container('docker') {
-                    when {
-        expression { GIT_BRANCH ==~ /(dev)/ }
-      }
+                    echo "Check out acme code"
+                    git branch: "dev",
+                        credentialsId: 'github',
+                        url: 'https://github.com/durgaprasad444/hello-world.git'
+                    
 
                     
                     // Let's clone the source
