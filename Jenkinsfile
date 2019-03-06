@@ -7,9 +7,6 @@ volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
     node(label) {
-        def myRepo = checkout scm
-        def gitCommit = myRepo.GIT_COMMIT
-        def gitBranch = myRepo.GIT_BRANCH
         def APP_NAME = "hello-world"
         def tag = "dev"
         environment {
@@ -22,10 +19,9 @@ volumes: [
                     
                     // Let's clone the source
                     sh """ 
-                      echo "${gitBranch}"
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
-                      cp -r * /home/jenkins/workspace/branching2
+                      cp -r * /home/jenkins/workspace/ci-cd
                     """
                 }
             }
