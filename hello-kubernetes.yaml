@@ -24,7 +24,6 @@ spec:
       labels:
         app: hello-kubernetes
     spec:
-      hostname: worker-node2
       containers:
       - name: hello-kubernetes
         image: durgaprasad444/hello-world:latest
