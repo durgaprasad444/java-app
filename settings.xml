@@ -6,7 +6,7 @@ xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.o
 <server>
 <id>nexus</id>
 <username>admin</username>
-<password>{W9ifk2wcmoEHGH5qhQnDKLModu/YNtQzQ6oa45yYW14=}</password>
+<password>admin123</password>
 </server>
 </servers>
 <mirrors>
