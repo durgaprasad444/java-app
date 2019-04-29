@@ -30,7 +30,7 @@ volumes: [
         stage('Build image') {
             container('docker') {
                 sh """
-                cd /home/jenkins/workspace/node-app
+                cd /home/jenkins/workspace/maven-example
                 docker build -t gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER .
                 """
                 
