@@ -1,6 +1,7 @@
 def label = "docker-slave-${UUID.randomUUID().toString()}"
 podTemplate(label: label, containers: [
     containerTemplate(name: 'docker', image: 'durgaprasad444/jenmine:1.1', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'slave2', image: 'gcr.io/sentrifugo/jenkins-slave:v2', ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', ttyEnabled: true, command: 'cat')
 ],
 volumes: [
@@ -38,7 +39,7 @@ volumes: [
 }
 }
 stage('Push image') {
-    container('docker') {
+    container('slave2') {
   docker.withRegistry('https://gcr.io', 'gcr:sentrifugo') {
       sh "docker push gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
     
