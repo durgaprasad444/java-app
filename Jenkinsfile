@@ -9,11 +9,6 @@ volumes: [
     node(label) {
         def APP_NAME = "hello-world"
         def tag = "dev"
-        environment {
-        registry = "durgaprasad444/hello-world-dev"
-        registryCredential = 'dockerhub'
-        dockerImage = ''
-    }
             stage("clone code") {
                 container('docker') {
                     
@@ -21,7 +16,7 @@ volumes: [
                     sh """ 
                       git clone https://github.com/durgaprasad444/${APP_NAME}.git            
                       cd ${APP_NAME}
-                      cp -r * /home/jenkins/workspace/ci-cd
+                      cp -r * /home/jenkins/workspace/maven-example
                     """
                 }
             }
@@ -32,21 +27,26 @@ volumes: [
                     sh "mvn package -DskipTests=true"
             }
         }
-        stage('Building image') {
+        stage('Build image') {
             container('docker') {
-              withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                credentialsId: 'dockerhub',
-                usernameVariable: 'DOCKER_HUB_USER',
-                passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
                 sh """
-                  docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
-                  docker build -t ${DOCKER_HUB_USER}/${APP_NAME}-${tag}:$BUILD_NUMBER .
-                  docker push ${DOCKER_HUB_USER}/${APP_NAME}-${tag}:$BUILD_NUMBER
-                  """
-                }
-            
-          }
-        }
+                cd /home/jenkins/workspace/node-app
+                docker build -t gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER .
+                """
+                
+  
+}
+}
+stage('Push image') {
+    container('docker') {
+  docker.withRegistry('https://gcr.io', 'gcr:sentrifugo') {
+      sh "docker push gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
+    
+    
+  }
+    }
+}
+
         
         stage("publish to nexus") {
             container('docker') {
@@ -64,7 +64,7 @@ def pom = readMavenPom file: 'pom.xml'
         }
         stage("deploy on kubernetes") {
             container('kubectl') {
-                sh "kubectl set image deployment/hello-kubernetes hello-kubernetes=durgaprasad444/${APP_NAME}-${tag}:$BUILD_NUMBER"
+                sh "kubectl set image deployment/maven-example maven-example-sha256:=gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
             }
         }
                 }
