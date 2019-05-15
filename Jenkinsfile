@@ -62,7 +62,7 @@ def pom = readMavenPom file: 'pom.xml'
 }
         }
         stage("deploy on kubernetes") {
-            container('kubectl') {
+            container('slave1') {
                 sh "kubectl set image deployment/maven-example maven-example-sha256=gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
             }
         }
