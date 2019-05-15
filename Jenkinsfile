@@ -1,8 +1,6 @@
-def label = "docker-slave-${UUID.randomUUID().toString()}"
+def label = "jenkins-slave-${UUID.randomUUID().toString()}"
 podTemplate(label: label, containers: [
-    containerTemplate(name: 'docker', image: 'durgaprasad444/jenmine:1.1', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'slave2', image: 'gcr.io/sentrifugo/jenkins-slave:v1', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', ttyEnabled: true, command: 'cat')
+    containerTemplate(name: 'slave1', image: 'gcr.io/sentrifugo/jenkins-slave:v1', ttyEnabled: true, command: 'cat')
 ],
 volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
@@ -11,7 +9,7 @@ volumes: [
         def APP_NAME = "hello-world"
         def tag = "dev"
             stage("clone code") {
-                container('docker') {
+                container('slave1') {
                     
                     // Let's clone the source
                     sh """ 
@@ -22,14 +20,14 @@ volumes: [
                 }
             }
         stage("mvn build") {
-            container('docker') {
+            container('slave1') {
                     // If you are using Windows then you should use "bat" step
                     // Since unit testing is out of the scope we skip them
                     sh "mvn package -DskipTests=true"
             }
         }
         stage('Build image') {
-            container('docker') {
+            container('slave1') {
                 sh """
                 cd /home/jenkins/workspace/maven-example
                 docker build -t gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER .
@@ -39,7 +37,7 @@ volumes: [
 }
 }
 stage('Push image') {
-    container('slave2') {
+    container('slave1') {
   docker.withRegistry('https://gcr.io', 'gcr:sentrifugo') {
       sh "docker push gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
     
@@ -50,7 +48,7 @@ stage('Push image') {
 
         
         stage("publish to nexus") {
-            container('docker') {
+            container('slave1') {
 def pom = readMavenPom file: 'pom.xml'
  nexusPublisher nexusInstanceId: 'localNexus', \
   nexusRepositoryId: 'hello-world', \
