@@ -12,7 +12,7 @@ xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.o
 <mirrors>
 <mirror>
 <id>nexus</id>
-<url>http://35.196.136.112:8081/repository/maven-group/</url>
+<url>http:///repository/maven-group/</url>
 <mirrorOf>*</mirrorOf>
 </mirror>
 </mirrors>
