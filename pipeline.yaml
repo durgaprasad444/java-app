@@ -1,5 +1,7 @@
-pipelineType: maven
+type: python
 runTests: true
-testCommand: "pytest test.py"
+testCommand: pytest test.py
 deployUponTestSuccess: true
-deploymentEnvironment: "staging"
+deployToolImage: bash
+deployCommand: command goes here to deploy to
+deployEnvironment: staging
