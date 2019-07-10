@@ -1,2 +1,4 @@
+#!/bin/groovy
 @Library('jenkins-pipeline-library') _
-mavenPipeline()
+import org.acme.*
+new stdPipeline().execute()
