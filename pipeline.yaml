@@ -1,4 +1,5 @@
-type: python
+python: true
+maven: false
 runTests: true
 testCommand: pytest test.py
 deployUponTestSuccess: true
