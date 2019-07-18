@@ -1,4 +1,4 @@
 #!/bin/groovy
-@Library('name_of_your_shared_lib') _
+@Library('jenkins-pipeline-library') _
 import org.acme.*
 new stdPipeline().execute()
