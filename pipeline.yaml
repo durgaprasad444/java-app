@@ -1,8 +1,3 @@
-python: true
-maven: false
-runTests: true
-testCommand: pytest test.py
-deployUponTestSuccess: true
-deployToolImage: bash
-deployCommand: command goes here to deploy to
-deployEnvironment: staging
+pipelineType: "mavenexample"
+appname: "java-app"
+env: "dev"
