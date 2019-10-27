@@ -1,5 +1,5 @@
 {
-  "pipelineType": "mavenexample",
+  "pipelineType": "nodeexample",
   "appname": "java-app",
   "env": "dev"
 }
