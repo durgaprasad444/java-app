@@ -2,5 +2,5 @@
   "pipelineType": "mavenexample",
   "appname": "java-app",
   "env": "dev",
-  "namespace": ""
+  "namespace": "p72"
 }
