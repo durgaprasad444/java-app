@@ -1,5 +1,6 @@
 {
   "pipelineType": "mavenexample",
   "appname": "java-app",
-  "env": "dev"
+  "env": "dev",
+  "namespace": "loc-"
 }
